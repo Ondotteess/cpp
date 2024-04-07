@@ -33,14 +33,22 @@ int main() {
 
     std::sort(randomArray.begin(), randomArray.end());
 
+    bool isSuccess = true;
     for (int i = 0; i < SIZE; i++) {
         if (avlArray[i] != randomArray[i]) {
-            std::cout << "failed" << std::endl;
-            exit(0);
+            isSuccess = false;
         }
     }
 
-    std::cout << "Success!" << std::endl;
+    if (isSuccess) {
+        std::cout << "Success!" << std::endl;
+    } else {
+        std::cout << "Failed!" << std::endl;
+    }
 
+    
+
+    int x;
+    std::cin >> x;
     return 0;
 }
