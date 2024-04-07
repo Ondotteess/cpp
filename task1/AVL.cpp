@@ -211,6 +211,18 @@ public:
         root = nullptr;
     }
 
+    ~AVLTree() {
+        destroyTree(root);  
+    }
+
+    void destroyTree(Node* node) {
+        if (node != nullptr) {
+            destroyTree(node->left);
+            destroyTree(node->right);
+            delete node;
+        }  
+    }
+
     void insert(int value) {
         root = insert(root, value);
     }
