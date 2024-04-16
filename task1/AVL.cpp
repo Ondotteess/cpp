@@ -1,6 +1,4 @@
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
 #include <vector>
 
 class AVLTree {
@@ -184,19 +182,6 @@ private:
         return node;
     }
 
-    bool checkBalance(Node* node) {
-        if (node == nullptr) {
-            return true;  
-        }
-
-        int balance = getBalance(node);
-
-        if (balance > 1 || balance < -1) {
-            return false;
-        }
-
-        return checkBalance(node->left) && checkBalance(node->right);
-    }
 
     void inOrderTraversal(Node* node, std::vector<int>& result) {
         if (node != nullptr) {
@@ -213,6 +198,20 @@ public:
 
     ~AVLTree() {
         destroyTree(root);  
+    }
+
+    bool checkBalance(Node* node) {
+        if (node == nullptr) {
+            return true;  
+        }
+
+        int balance = getBalance(node);
+
+        if (balance > 1 || balance < -1) {
+            return false;
+        }
+
+        return checkBalance(node->left) && checkBalance(node->right);
     }
 
     void destroyTree(Node* node) {

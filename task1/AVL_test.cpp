@@ -2,6 +2,7 @@
 #include <vector>
 #include <cstdlib> 
 #include <algorithm> 
+#include <ctime>
 
 std::vector<int> generateRandomArray(int size) {
     std::vector<int> randomArray;
@@ -41,11 +42,26 @@ int main() {
     }
 
     if (isSuccess) {
-        std::cout << "Success!" << std::endl;
+        std::cout << "Sorting Success!" << std::endl;
     } else {
         std::cout << "Failed!" << std::endl;
     }
 
+    AVLTree tree;
+    tree.insert(10);
+    tree.insert(20);
+    tree.insert(30);
+    tree.insert(40);
+    tree.insert(50);
+
+    tree.deleteNode(30);
+    tree.deleteNode(40);
+
+    if (tree.toSortArray().size() == 3) {
+        std::cout << "Removing Success!" << std::endl;
+    } else {
+        std::cout << "Removing Failed!" << std::endl;
+    }
     
 
     int x;
