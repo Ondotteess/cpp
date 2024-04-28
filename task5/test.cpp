@@ -22,7 +22,7 @@ int main() {
         assert(deepPtr->value == 42); // not affected
         assert(deepPtr2->value == 100);
 
-        ScopedPointerDeep<TestData> deepPtr3;
+        ScopedPointerDeep<TestData> deepPtr3(new TestData(1));
         deepPtr3 = deepPtr2; // Assignment operator
 
         assert(deepPtr3->value == 100);
@@ -31,7 +31,7 @@ int main() {
         assert(deepPtr4->value == 100);
         assert(deepPtr3.operator->() == nullptr);
 
-        ScopedPointerDeep<TestData> deepPtr5;
+        ScopedPointerDeep<TestData> deepPtr5(new TestData(1));
         deepPtr5 = std::move(deepPtr4); // Move assignment operator
         assert(deepPtr5->value == 100);
          assert(deepPtr4.operator->() == nullptr); // should be null
