@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cassert>
+#include "ScopedPointer.cpp"
+
 
 struct TestData {
     int value;
