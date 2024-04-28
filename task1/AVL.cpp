@@ -1,3 +1,6 @@
+#include <iostream>
+#include <vector>
+
 class AVLTree {
 private:
     struct Node {
