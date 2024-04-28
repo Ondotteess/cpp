@@ -58,6 +58,12 @@ int main() {
     tree.deleteNode(40);
 
     if (tree.toSortArray().size() == 3) {
+        std::vector after = tree.toSortArray();
+        std::vector test = {10, 20, 50};
+        for (int i = 0; i < 3; i++) {
+            if (after[i] == test[i]) continue;
+            else std::cout << "failed" << std::endl;
+        }
         std::cout << "Removing Success!" << std::endl;
     } else {
         std::cout << "Removing Failed!" << std::endl;
