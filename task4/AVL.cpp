@@ -206,21 +206,26 @@ private:
 
 public:
     AVLTree() {
+        std::cout << "Default ctr called" << std::endl;
         root = nullptr;
     }
 
+    // copy constructor
     AVLTree(const AVLTree& other) {
+        std::cout << "copy ctr called" << std::endl;
         root = copyTree(other.root);
     }
 
     // Move Constructor
     AVLTree(AVLTree&& other)  {
+        std::cout << "Move ctr called" << std::endl;
         root = other.root;
         other.root = nullptr;
     }
 
     // Move Assignment Operator
     AVLTree& operator=(AVLTree&& other) {
+        std::cout << "Move assigment oper called" << std::endl;
         if (this != &other) {
             clear(root);
             root = other.root;
