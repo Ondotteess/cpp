@@ -1,5 +1,6 @@
 #include "AVL.cpp"
 #include <vector>
+#include <iostream>
 #include <cstdlib> 
 #include <algorithm> 
 #include <ctime>
@@ -18,7 +19,7 @@ std::vector<int> generateRandomArray(int size) {
 const size_t SIZE = 100;
 
 int main() {
-    srand(static_cast<unsigned>(time(nullptr))); 
+    srand(static_cast<unsigned>(time(nullptr)));
 
     AVLTree avl;
     std::vector<int> randomArray = generateRandomArray(SIZE);
@@ -32,7 +33,7 @@ int main() {
         avlArray.push_back(num);
     }
 
-    std::sort(randomArray.begin(), randomArray.end());
+    sort(randomArray.begin(), randomArray.end());
 
     bool isSuccess = true;
     for (int i = 0; i < SIZE; i++) {
@@ -43,7 +44,8 @@ int main() {
 
     if (isSuccess) {
         std::cout << "Sorting Success!" << std::endl;
-    } else {
+    }
+    else {
         std::cout << "Failed!" << std::endl;
     }
 
@@ -58,16 +60,33 @@ int main() {
     tree.deleteNode(40);
 
     if (tree.toSortArray().size() == 3) {
-        std::vector<int> test = {10, 20, 50};
+        std::vector<int> test = { 10, 20, 50 };
         for (int i = 0; i < 3; i++) {
             if (tree.toSortArray()[i] == test[i]) continue;
             else std::cout << "failed" << std::endl;
         }
         std::cout << "Removing Success!" << std::endl;
-    } else {
+    }
+    else {
         std::cout << "Removing Failed!" << std::endl;
     }
-    
+
+
+    AVLTree avl0;
+    std::vector<int> randomArray0 = generateRandomArray(SIZE);
+
+    bool isBalanced = true;
+    for (int num : randomArray0) {
+        avl0.insert(num);
+        if (!avl.isBalanced()) isBalanced = false;
+    }
+
+    if (isBalanced) {
+        std::cout << "Tree is balanced" << std::endl;
+    }
+    else {
+        std::cout << "Tree is not balanced" << std::endl;
+    }
 
     int x;
     std::cin >> x;

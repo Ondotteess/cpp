@@ -1,6 +1,3 @@
-#include <iostream>
-#include <vector>
-
 class AVLTree {
 private:
     struct Node {
@@ -30,25 +27,23 @@ private:
     }
 
     Node* rightRotate(Node* X) {
-
         if (X == nullptr || X->left == nullptr) return X;
-        
+
         Node* L = X->left;
         Node* LR = L->right;
 
         L->right = X;
         X->left = LR;
 
+        updateHeight(X);
         updateHeight(L);
-        updateHeight(LR);
 
         return L;
     }
 
     Node* leftRotate(Node* X) {
-
         if (X == nullptr || X->right == nullptr) return X;
-        
+
         Node* R = X->right;
         Node* RL = R->left;
 
@@ -77,38 +72,7 @@ private:
             node->right = insert(node->right, value);
         }
 
-        updateHeight(node);
-
-        int balance = getBalance(node);
-
-        if (balance > 1) {
-            if (value <= node->left->data) {
-                return rightRotate(node);
-            }
-            else {
-                node->left = leftRotate(node->left);
-                return rightRotate(node);
-            }
-        }
-        else if (balance < -1) {
-            if (value > node->right->data) {
-                return leftRotate(node);
-            }
-            else {
-                node->right = rightRotate(node->right);
-                return leftRotate(node);
-            }
-        }
-
-        return node;
-    }
-
-    void printLevel(Node* node) {
-        if (node != nullptr) {
-            printLevel(node->left);
-            std::cout << node->data << " ";
-            printLevel(node->right);
-        }
+        return balance(node);
     }
 
     Node* deleteNode(Node* node, int value) {
@@ -130,8 +94,8 @@ private:
                     temp = node;
                     node = nullptr;
                 }
-                else { 
-                    *node = *temp; 
+                else {
+                    *node = *temp;
                 }
 
                 delete temp;
@@ -145,36 +109,9 @@ private:
             }
         }
 
-        if (node == nullptr) {
-            return node;
-        }
-
-        updateHeight(node);
-
-        int balance = getBalance(node);
-
-        if (balance > 1) {
-            if (getBalance(node->left) >= 0) {
-                return rightRotate(node);
-            }
-            else {
-                node->left = leftRotate(node->left);
-                return rightRotate(node);
-            }
-        }
-        else if (balance < -1) {
-            if (getBalance(node->right) <= 0) {
-                return leftRotate(node);
-            }
-            else {
-                node->right = rightRotate(node->right);
-                return leftRotate(node);
-            }
-        }
-
-        return node;
+        return balance(node);
     }
- 
+
     Node* findMin(Node* node) {
         while (node->left != nullptr) {
             node = node->left;
@@ -182,6 +119,37 @@ private:
         return node;
     }
 
+    Node* balance(Node* node) {
+        if (node == nullptr)
+            return node;
+
+        updateHeight(node);
+
+        int balanceFactor = getBalance(node);
+
+        if (balanceFactor > 1) {
+            if (getBalance(node->left) < 0) {
+                node->left = leftRotate(node->left);
+            }
+            return rightRotate(node);
+        }
+        if (balanceFactor < -1) {
+            if (getBalance(node->right) > 0) {
+                node->right = rightRotate(node->right);
+            }
+            return leftRotate(node);
+        }
+
+        return node;
+    }
+
+    void printLevel(Node* node) {
+        if (node != nullptr) {
+            printLevel(node->left);
+            std::cout << node->data << " ";
+            printLevel(node->right);
+        }
+    }
 
     void inOrderTraversal(Node* node, std::vector<int>& result) {
         if (node != nullptr) {
@@ -191,35 +159,21 @@ private:
         }
     }
 
+    void destroyTree(Node* node) {
+        if (node != nullptr) {
+            destroyTree(node->left);
+            destroyTree(node->right);
+            delete node;
+        }
+    }
+
 public:
     AVLTree() {
         root = nullptr;
     }
 
     ~AVLTree() {
-        destroyTree(root);  
-    }
-
-    bool checkBalance(Node* node) {
-        if (node == nullptr) {
-            return true;  
-        }
-
-        int balance = getBalance(node);
-
-        if (balance > 1 || balance < -1) {
-            return false;
-        }
-
-        return checkBalance(node->left) && checkBalance(node->right);
-    }
-
-    void destroyTree(Node* node) {
-        if (node != nullptr) {
-            destroyTree(node->left);
-            destroyTree(node->right);
-            delete node;
-        }  
+        destroyTree(root);
     }
 
     void insert(int value) {
@@ -230,14 +184,27 @@ public:
         root = deleteNode(root, value);
     }
 
-    void printTree() {
-        printLevel(root);
-        std::cout << std::endl;
-    }
-
     std::vector<int> toSortArray() {
         std::vector<int> sortedArray;
         inOrderTraversal(root, sortedArray);
         return sortedArray;
+    }
+
+    bool isBalanced() {
+        return checkBalance(root);
+    }
+
+    bool checkBalance(Node* node) {
+        if (node == nullptr) {
+            return true;
+        }
+
+        int balance = getBalance(node);
+
+        if (balance > 1 || balance < -1) {
+            return false;
+        }
+
+        return checkBalance(node->left) && checkBalance(node->right);
     }
 };
