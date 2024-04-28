@@ -45,6 +45,7 @@ public:
         std::cout << " + ";
         right->print();
     }
+    ~Add() {}
 };
 
 class Sub : public Binary {
@@ -61,6 +62,7 @@ public:
         std::cout << " - ";
         right->print();
     }
+    ~Sub() {}
 };
 
 class Mult : public Binary {
@@ -77,6 +79,7 @@ public:
         std::cout << " * ";
         right->print();
     }
+    ~Mult() {}
 };
 
 class Div : public Binary {
@@ -94,6 +97,7 @@ public:
         std::cout << " / ";
         right->print();
     }
+    ~Div() {}
 };
 
 class Exponent : public Binary {
@@ -112,6 +116,7 @@ public:
         std::cout << " ^ ";
         right->print();
     }
+    ~Exponent() {}
 };
 
 class Val : public Expression {
@@ -128,6 +133,7 @@ public:
     void print() const override {
         std::cout << value;
     }
+    ~Val() {}
 };
 
 class Var : public Expression {
@@ -147,5 +153,5 @@ public:
     void print() const override {
         std::cout << var_name;
     }
+    ~Var() {}
 };
-
