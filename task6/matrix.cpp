@@ -1,4 +1,7 @@
 ﻿#include <vector>
+#include <cstddef>
+
+using namespace std;
 
 class Matrix {
 private:
@@ -83,19 +86,19 @@ public:
         return result;
     }
 
-    Matrix &operator*=(const Matrix other) const {
-        Matrix result(_size);
+    Matrix* operator*=(const Matrix other) const {
+        Matrix* result = new Matrix(_size);
         for (int i = 0; i < _size; i++) {
             for (int j = 0; j < _size; j++) {
-                result._data[i][j] = 0;
+                result->_data[i][j] = 0;
                 for (int k = 0; k < _size; k++) {
-                    result._data[i][j] += _data[i][k] * other._data[k][j];
+                    result->_data[i][j] += _data[i][k] * other._data[k][j];
                 }
             }
         }
         return result;
     }
-
+    
     Matrix& operator*=(double scalar) {
         for (size_t i = 0; i < _size; ++i) {
             for (size_t j = 0; j < _size; ++j) {

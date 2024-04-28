@@ -79,7 +79,7 @@ int main() {
 
         Matrix m2(2);
         m2 = m1;
-        std::cout << "Mat assigment oper" << std::cout;
+        std::cout << "Mat assigment oper" << std::endl;
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
                 std::cout << m2[i][j] << " ";
