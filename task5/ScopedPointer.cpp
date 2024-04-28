@@ -6,22 +6,28 @@ private:
     T* ptr;
 
 public:
-    ScopedPointerDeep(T* p = nullptr) : ptr(p) {}
+    ScopedPointerDeep(T* p) : ptr(p) {}
 
     ~ScopedPointerDeep() {
         delete ptr;
     }
 
+    //copy
     ScopedPointerDeep(const ScopedPointerDeep& other) : ptr(nullptr) {
         if (other.ptr) {
             ptr = new T(*other.ptr);
         }
     }
 
+    //move
+    ScopedPointerDeep(ScopedPointerDeep&& other): ptr(other.ptr) {
+        other.ptr = nullptr;
+    }
+
+    //copy
     ScopedPointerDeep& operator=(const ScopedPointerDeep& other) {
         if (this != &other) {
             delete ptr;
-            ptr = nullptr;
             if (other.ptr) {
                 ptr = new T(*other.ptr);
             }
@@ -29,10 +35,7 @@ public:
         return *this;
     }
 
-    ScopedPointerDeep(ScopedPointerDeep&& other): ptr(other.ptr) {
-        other.ptr = nullptr;
-    }
-
+    //move
     ScopedPointerDeep& operator=(ScopedPointerDeep&& other) {
         if (this != &other) {
             delete ptr;
@@ -63,13 +66,9 @@ public:
         delete ptr;
     }
 
-    ScopedPointerTransfer(const ScopedPointerTransfer& other) = delete;
-
     ScopedPointerTransfer(ScopedPointerTransfer&& other) : ptr(other.ptr) {
         other.ptr = nullptr;
     }
-
-    ScopedPointerTransfer& operator=(const ScopedPointerTransfer& other) = delete;
 
     ScopedPointerTransfer& operator=(ScopedPointerTransfer&& other) {
         if (this != &other) {
