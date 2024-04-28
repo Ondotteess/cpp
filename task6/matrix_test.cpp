@@ -7,6 +7,7 @@ int main() {
     
     // Test: Vector init and double indexing
     {
+        std::cout << "Diagonal init" << std::endl;
         std::vector<double> vec = { 1, 2, 3, 4 };
         Matrix m(vec);
         for (int i = 0; i < 4; i++) {
@@ -32,6 +33,7 @@ int main() {
         m2[1][0] = 7;
         m2[1][1] = 8;
 
+        std::cout << "Test mat addition" << std::endl;
         Matrix result = m1 + m2;
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
@@ -56,6 +58,7 @@ int main() {
         m2[1][0] = 7;
         m2[1][1] = 8;
 
+        std::cout << "Test mult mat" << std::endl;
         Matrix result = m1 * m2;
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
@@ -76,6 +79,7 @@ int main() {
 
         Matrix m2(2);
         m2 = m1;
+        std::cout << "Mat assigment oper" << std::cout;
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
                 std::cout << m2[i][j] << " ";

@@ -1,6 +1,5 @@
 #include <iostream>
 #include <cassert>
-#include "AVL.cpp"
 
 struct TestData {
     int value;
