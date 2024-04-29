@@ -25,7 +25,7 @@ int LimitMixin<Derived, Limit>::instanceCount = 0;
 class Test : public LimitMixin<Test, 3> {
 public:
     Test() {
-        std::cout << "MyClass instance created." << std::endl;
+        std::cout << "instance created." << std::endl;
     }
 };
 
@@ -37,7 +37,7 @@ int main() {
         Test obj4;
     }
     catch (const std::exception& e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
+        std::cout << "exception: " << e.what() << std::endl;
     }
 
     return 0;
