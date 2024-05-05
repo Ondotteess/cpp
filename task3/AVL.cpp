@@ -213,11 +213,13 @@ public:
 
     // copy constructor
     AVLTree(const AVLTree& other) {
+        std::cout << "Copy ctor called!" << std::endl;
         copyTree(root, other.root);
     }
 
     // copy assign operator
     AVLTree& operator=(const AVLTree& other) {
+        std::cout << "Copy assign oper called!" << std::endl;
         if (this != &other) {
             deleteTree(root);
             copyTree(root, other.root);
@@ -227,6 +229,7 @@ public:
 
     // destructor
     ~AVLTree() {
+        std::cout << "dstr called!" << std::endl;
         deleteTree(root);
     }
 
