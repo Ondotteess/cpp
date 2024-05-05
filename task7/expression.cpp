@@ -5,7 +5,7 @@ class Expression {
 public:
     virtual Expression* diff(std::string var) const = 0;
     virtual Expression* clone() const = 0;
-    virtual void print() const = 0; 
+    virtual void print() const = 0;
     virtual ~Expression() {}
 };
 
