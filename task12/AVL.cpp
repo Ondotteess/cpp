@@ -212,7 +212,6 @@ public:
         return checkBalance(node->left) && checkBalance(node->right);
     }
 
-    // Iterator class for AVLTree
     class Iterator {
     private:
         std::stack<Node*> nodesStack;
