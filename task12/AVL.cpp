@@ -211,22 +211,21 @@ public:
 
         return checkBalance(node->left) && checkBalance(node->right);
     }
+public:
 
     class Iterator {
     private:
-        std::stack<Node*> nodesStack;
         Node* current;
-
-        void pushLeft(Node* node) {
-            while (node != nullptr) {
-                nodesStack.push(node);
-                node = node->left;
-            }
-        }
+        std::stack<Node*> parents;
 
     public:
         Iterator(Node* root) : current(root) {
-            pushLeft(current);
+            if (current) {
+                while (current->left) {
+                    parents.push(current);
+                    current = current->left;
+                }
+            }
         }
 
         int operator*() const {
@@ -234,13 +233,16 @@ public:
         }
 
         Iterator& operator++() {
-            if (!nodesStack.empty()) {
-                current = nodesStack.top();
-                nodesStack.pop();
-                if (current->right != nullptr) {
-                    Node* temp = current->right;
-                    pushLeft(temp);
+            if (current->right) {
+                current = current->right;
+                while (current->left) {
+                    parents.push(current);
+                    current = current->left;
                 }
+            }
+            else if (!parents.empty()) {
+                current = parents.top();
+                parents.pop();
             }
             else {
                 current = nullptr;
@@ -254,12 +256,13 @@ public:
     };
 
     Iterator begin() {
-        return Iterator(this->root);
+        return Iterator(root);
     }
 
     Iterator end() {
         return Iterator(nullptr);
     }
+
 };
 
 int main() {
@@ -270,11 +273,25 @@ int main() {
     tree.insert(7);
     tree.insert(1);
     tree.insert(4);
+    tree.insert(19);
+    tree.insert(25);
+    tree.insert(2);
+    tree.insert(52);
+    tree.insert(6);
 
 
     std::cout << "ranged based loop: ";
     for (int value : tree) {
         std::cout << value << " ";
+    }
+    std::cout << std::endl;
+
+    AVLTree::Iterator it = tree.begin();
+    AVLTree::Iterator end = tree.end();
+
+    std::cout << "begin(): ";
+    for (; it != end; ++it) {
+        std::cout << *it << " ";
     }
     std::cout << std::endl;
 
