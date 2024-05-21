@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <iostream>
+#include "matrix.cpp"
 
 void testBoundsChecking() {
     Matrix m(2);
