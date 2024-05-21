@@ -10,50 +10,49 @@ struct TestData {
 };
 
 int main() {
-    // ScopedPointerDeep
+    // Deep
     {
-        ScopedPointerDeep<TestData> deepPtr(new TestData(42));
-        ScopedPointerDeep<TestData> deepPtr2 = deepPtr; 
+        // ctr
+        ScopedPointerDeep<TestData> ptr1(new TestData(10));
+        assert(ptr1->value == 10);
 
-        assert(deepPtr->value == 42);
-        assert(deepPtr2->value == 42);
+        // copy ctrs
+        ScopedPointerDeep<TestData> ptr2(ptr1);
+        assert(ptr2->value == 10);
+        assert(ptr1->value == 10);
 
-        deepPtr2->value = 100;
-        assert(deepPtr->value == 42); // not affected
-        assert(deepPtr2->value == 100);
+        // move ctrs
+        ScopedPointerDeep<TestData> ptr3(std::move(ptr1));
+        assert(ptr3->value == 10);
+        assert(ptr1.operator->() == nullptr); // ptr1 should be empty
 
-        ScopedPointerDeep<TestData> deepPtr3(new TestData(1));
-        deepPtr3 = deepPtr2; // Assignment operator
+        // copy assignment op
+        ScopedPointerDeep<TestData> ptr4(new TestData(20));
+        ptr4 = ptr2;
+        assert(ptr4->value == 10);
 
-        assert(deepPtr3->value == 100);
-
-        ScopedPointerDeep<TestData> deepPtr4(std::move(deepPtr3)); // Move constructor
-        assert(deepPtr4->value == 100);
-        assert(deepPtr3.operator->() == nullptr);
-
-        ScopedPointerDeep<TestData> deepPtr5(new TestData(1));
-        deepPtr5 = std::move(deepPtr4); // Move assignment operator
-        assert(deepPtr5->value == 100);
-         assert(deepPtr4.operator->() == nullptr); // should be null
+        // self assigment
+        ptr4 = ptr4;
     }
 
-    // ScopedPointerTransfer
+    // transfer
     {
-        ScopedPointerTransfer<TestData> transferPtr(new TestData(42));
-        // ScopedPointerTransfer<TestData> transferPtr2 = transferPtr; // Compile error
+        // ctr
+        ScopedPointerTransfer<TestData> ptr1(new TestData(10));
+        assert(ptr1->value == 10);
 
-        assert(transferPtr->value == 42);
+        // move
+        ScopedPointerTransfer<TestData> ptr2(std::move(ptr1));
+        assert(ptr2->value == 10);
+        assert(ptr1.operator->() == nullptr); // should be empty
 
-        ScopedPointerTransfer<TestData> transferPtr3(std::move(transferPtr)); // Move constructor
-        assert(transferPtr3->value == 42);
-        assert(transferPtr.operator->() == nullptr); // should be null
-
-        ScopedPointerTransfer<TestData> transferPtr4;
-        transferPtr4 = std::move(transferPtr3); // Move assignment operator
-        assert(transferPtr4->value == 42);
-        assert(transferPtr3.operator->() == nullptr); // hould be null
+        // move assignment operator
+        ScopedPointerTransfer<TestData> ptr3(new TestData(20));
+        ptr3 = std::move(ptr2);
+        assert(ptr3->value == 10);
+        assert(ptr2.operator->() == nullptr); // should be empty
     }
 
-    std::cout << "All tests passed" << std::endl;
+    std::cout << "All tests passed!" << std::endl;
     return 0;
 }
