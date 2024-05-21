@@ -1,23 +1,37 @@
-﻿#include <vector>
-#include <cstddef>
-
 using namespace std;
 
 class Matrix {
 private:
     size_t _size;
     double** _data;
-public:
 
-    Matrix(size_t size) {
-        _size = size;
+    // allocator
+    void allocateData(size_t size) {
         _data = new double* [size];
-        for (int i = 0; i < size; i++) {
-            _data[i] = new double[size];
+        for (size_t i = 0; i < size; ++i) {
+            _data[i] = new double[size]();
         }
     }
 
-    Matrix(const Matrix& other) : Matrix(other._size) {
+    void deallocateData() {
+        if (_data) {
+            for (size_t i = 0; i < _size; ++i) {
+                delete[] _data[i];
+            }
+            delete[] _data;
+            _data = nullptr;
+        }
+    }
+
+public:
+
+    Matrix(size_t size) : _size(size) {
+        allocateData(size);
+    }
+
+    // copy
+    Matrix(const Matrix& other) : _size(other._size) {
+        allocateData(_size);
         for (size_t i = 0; i < _size; ++i) {
             for (size_t j = 0; j < _size; ++j) {
                 _data[i][j] = other._data[i][j];
@@ -25,23 +39,49 @@ public:
         }
     }
 
+    // move
+    Matrix(Matrix&& other) noexcept : _size(other._size), _data(other._data) {
+        other._size = 0;
+        other._data = nullptr;
+    }
+
+
     Matrix(const std::vector<double>& vec) {
         _size = vec.size();
-        _data = new double* [_size];
-        for (size_t i = 0; i < _size; ++i) {
-            _data[i] = new double[_size]();
-        }
-
+        allocateData(_size);
         for (size_t i = 0; i < _size; ++i) {
             _data[i][i] = vec[i];
         }
     }
-    
+
+    // Destructor
     ~Matrix() {
-        for (size_t i = 0; i < _size; ++i) {
-            delete[] _data[i];
+        deallocateData();
+    }
+
+    // copy assignment 
+    Matrix& operator=(Matrix other) {
+        swap(*this, other);
+        return *this;
+    }
+
+    // move assignment 
+    Matrix& operator=(Matrix&& other) noexcept {
+        if (this != &other) {
+            deallocateData();
+            _size = other._size;
+            _data = other._data;
+            other._size = 0;
+            other._data = nullptr;
         }
-        delete[] _data;
+        return *this;
+    }
+
+    // swap redefine
+    void swap(Matrix& first, Matrix& second) noexcept {
+        using std::swap;
+        swap(first._size, second._size);
+        swap(first._data, second._data);
     }
 
     explicit operator double() const {
@@ -54,7 +94,9 @@ public:
         return sum;
     }
 
+    // addition op
     Matrix operator+(const Matrix& other) const {
+        if (_size != other._size) throw std::invalid_argument("Matrix sizes must match");
         Matrix result(_size);
         for (size_t i = 0; i < _size; ++i) {
             for (size_t j = 0; j < _size; ++j) {
@@ -64,21 +106,25 @@ public:
         return result;
     }
 
-    Matrix operator+=(const Matrix& other) const {
+    // addition-assignment op
+    Matrix& operator+=(const Matrix& other) {
+        if (_size != other._size) throw std::invalid_argument("Matrix sizes must match");
         for (size_t i = 0; i < _size; ++i) {
             for (size_t j = 0; j < _size; ++j) {
-                _data[i][j] = _data[i][j] + other._data[i][j];
+                _data[i][j] += other._data[i][j];
             }
         }
         return *this;
     }
 
-    Matrix operator*(const Matrix other) {
+    // multiplication operator
+    Matrix operator*(const Matrix& other) const {
+        if (_size != other._size) throw std::invalid_argument("Matrix sizes must match");
         Matrix result(_size);
-        for (int i = 0; i < _size; i++) {
-            for (int j = 0; j < _size; j++) {
+        for (size_t i = 0; i < _size; ++i) {
+            for (size_t j = 0; j < _size; ++j) {
                 result._data[i][j] = 0;
-                for (int k = 0; k < _size; k++) {
+                for (size_t k = 0; k < _size; ++k) {
                     result._data[i][j] += _data[i][k] * other._data[k][j];
                 }
             }
@@ -86,19 +132,22 @@ public:
         return result;
     }
 
-    Matrix* operator*=(const Matrix other) const {
-        Matrix* result = new Matrix(_size);
-        for (int i = 0; i < _size; i++) {
-            for (int j = 0; j < _size; j++) {
-                result->_data[i][j] = 0;
-                for (int k = 0; k < _size; k++) {
-                    result->_data[i][j] += _data[i][k] * other._data[k][j];
+    // multiplication-assignment operator
+    Matrix& operator*=(const Matrix& other) {
+        if (_size != other._size) throw std::invalid_argument("Matrix sizes must match");
+        Matrix result(_size);
+        for (size_t i = 0; i < _size; ++i) {
+            for (size_t j = 0; j < _size; ++j) {
+                result._data[i][j] = 0;
+                for (size_t k = 0; k < _size; ++k) {
+                    result._data[i][j] += _data[i][k] * other._data[k][j];
                 }
             }
         }
-        return result;
+        swap(result, *this);
+        return *this;
     }
-    
+
     Matrix& operator*=(double scalar) {
         for (size_t i = 0; i < _size; ++i) {
             for (size_t j = 0; j < _size; ++j) {
@@ -108,45 +157,29 @@ public:
         return *this;
     }
 
-    Matrix& operator=(Matrix other) {
-        if (this != &other) {
-            for (size_t i = 0; i < _size; ++i) {
-                delete[] _data[i];
-            }
-            delete[] _data;
-
-            _size = other._size;
-            _data = new double* [_size];
-            for (size_t i = 0; i < _size; ++i) {
-                _data[i] = new double[_size];
-                for (size_t j = 0; j < _size; ++j) {
-                    _data[i][j] = other._data[i][j];
-                }
-            }
-        }
-        return *this;
-    }
-
     bool operator==(const Matrix& other) const {
-        if (_size != other._size) {
-            return false; 
-        }
-
+        if (_size != other._size) return false;
         for (size_t i = 0; i < _size; ++i) {
             for (size_t j = 0; j < _size; ++j) {
-                if (_data[i][j] != other._data[i][j]) {
-                    return false; 
-                }
+                if (_data[i][j] != other._data[i][j]) return false;
             }
         }
-        return true; 
+        return true;
     }
 
     bool operator!=(const Matrix& other) const {
         return !(*this == other);
     }
 
-    double* operator[](size_t index) { 
+    // bounds checking
+    double* operator[](size_t index) {
+        if (index >= _size) throw std::out_of_range("Index out of range");
         return _data[index];
     }
+
+    const double* operator[](size_t index) const {
+        if (index >= _size) throw std::out_of_range("Index out of range");
+        return _data[index];
+    }
+
 };
