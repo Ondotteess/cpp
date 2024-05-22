@@ -5,13 +5,21 @@
 #include <iostream>
 #include "matrix.cpp"
 
+
 void testBoundsChecking() {
     Matrix m(2);
     try {
-        m[2][0] = 1.0; // Should throw
+        m[0][3] = 1.0;
     }
     catch (const std::out_of_range& e) {
-        std::cout << "Bounds check passed: " << e.what() << std::endl;
+        std::cout << "Catched first index: " << e.what() << std::endl;
+    }
+
+    try {
+        m[3][0] = 1.0;
+    }
+    catch (const std::out_of_range& e) {
+        std::cout << "Catched second index: " << e.what() << std::endl;
     }
 }
 
@@ -107,7 +115,7 @@ int main() {
         }
         std::cout << std::endl;
     }
-
+    
     // Test: addition
     {
         Matrix m1(2);
@@ -115,13 +123,13 @@ int main() {
         m1[0][1] = 2;
         m1[1][0] = 3;
         m1[1][1] = 4;
-
+    
         Matrix m2(2);
         m2[0][0] = 5;
         m2[0][1] = 6;
         m2[1][0] = 7;
         m2[1][1] = 8;
-
+    
         std::cout << "Test mat addition" << std::endl;
         Matrix result = m1 + m2;
         for (int i = 0; i < 2; i++) {
@@ -132,7 +140,7 @@ int main() {
         }
         std::cout << std::endl;
     }
-
+    
     // Test: Multiply
     {
         Matrix m1(2);
@@ -140,13 +148,13 @@ int main() {
         m1[0][1] = 2;
         m1[1][0] = 3;
         m1[1][1] = 4;
-
+    
         Matrix m2(2);
         m2[0][0] = 5;
         m2[0][1] = 6;
         m2[1][0] = 7;
         m2[1][1] = 8;
-
+    
         std::cout << "Test mult mat" << std::endl;
         Matrix result = m1 * m2;
         for (int i = 0; i < 2; i++) {
@@ -157,7 +165,7 @@ int main() {
         }
         std::cout << std::endl;
     }
-
+    
     // Test: Assignment
     {
         Matrix m1(2);
@@ -165,7 +173,7 @@ int main() {
         m1[0][1] = 2;
         m1[1][0] = 3;
         m1[1][1] = 4;
-
+    
         Matrix m2(2);
         m2 = m1;
         std::cout << "Mat assignment oper" << std::endl;
