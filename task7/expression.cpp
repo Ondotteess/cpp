@@ -1,18 +1,19 @@
 #include <iostream>
 #include <string>
+#include <memory>
 
 class Expression {
 public:
-    virtual Expression* diff(std::string var) const = 0;
-    virtual Expression* clone() const = 0;
+    virtual std::shared_ptr<Expression> diff(std::string var) const = 0;
+    virtual std::shared_ptr<Expression> clone() const = 0;
     virtual std::string toString() const = 0;
     virtual ~Expression() = default;
 };
 
 class Binary : public Expression {
 protected:
-    Expression* left;
-    Expression* right;
+    std::shared_ptr<Expression> left;
+    std::shared_ptr<Expression> right;
     virtual std::string sign() const = 0;
 
     std::string toString() const override {
@@ -20,83 +21,70 @@ protected:
     }
 
 public:
-    Binary(Expression* l, Expression* r) : left(l), right(r) {}
-    virtual ~Binary() {
-        delete left;
-        delete right;
-    }
+    Binary(std::shared_ptr<Expression> l, std::shared_ptr<Expression> r) : left(l), right(r) {}
 };
 
 class Unary : public Expression {
 protected:
-    Expression* expr;
+    std::shared_ptr<Expression> expr;
 public:
-    Unary(Expression* e) : expr(e) {}
-    virtual ~Unary() {
-        delete expr;
-    }
+    Unary(std::shared_ptr<Expression> e) : expr(e) {}
 };
 
 class Add : public Binary {
 public:
-    Add(Expression* l, Expression* r) : Binary(l, r) {}
-    Expression* diff(std::string var) const override {
-        return new Add(left->diff(var), right->diff(var));
+    Add(std::shared_ptr<Expression> l, std::shared_ptr<Expression> r) : Binary(l, r) {}
+    std::shared_ptr<Expression> diff(std::string var) const override {
+        return std::make_shared<Add>(left->diff(var), right->diff(var));
     }
-    Expression* clone() const override {
-        return new Add(left->clone(), right->clone());
+    std::shared_ptr<Expression> clone() const override {
+        return std::make_shared<Add>(left->clone(), right->clone());
     }
     std::string sign() const override {
         return "+";
     }
-    ~Add() {}
 };
 
 class Sub : public Binary {
 public:
-    Sub(Expression* l, Expression* r) : Binary(l, r) {}
-    Expression* diff(std::string var) const override {
-        return new Sub(left->diff(var), right->diff(var));
+    Sub(std::shared_ptr<Expression> l, std::shared_ptr<Expression> r) : Binary(l, r) {}
+    std::shared_ptr<Expression> diff(std::string var) const override {
+        return std::make_shared<Sub>(left->diff(var), right->diff(var));
     }
-    Expression* clone() const override {
-        return new Sub(left->clone(), right->clone());
+    std::shared_ptr<Expression> clone() const override {
+        return std::make_shared<Sub>(left->clone(), right->clone());
     }
-
     std::string sign() const override {
         return "-";
     }
-    ~Sub() {}
 };
 
 class Mult : public Binary {
 public:
-    Mult(Expression* l, Expression* r) : Binary(l, r) {}
-    Expression* diff(std::string var) const override {
-        return new Add(new Mult(left->diff(var), right->clone()), new Mult(left->clone(), right->diff(var)));
+    Mult(std::shared_ptr<Expression> l, std::shared_ptr<Expression> r) : Binary(l, r) {}
+    std::shared_ptr<Expression> diff(std::string var) const override {
+        return std::make_shared<Add>(std::make_shared<Mult>(left->diff(var), right->clone()), std::make_shared<Mult>(left->clone(), right->diff(var)));
     }
-    Expression* clone() const override {
-        return new Mult(left->clone(), right->clone());
+    std::shared_ptr<Expression> clone() const override {
+        return std::make_shared<Mult>(left->clone(), right->clone());
     }
     std::string sign() const override {
         return "*";
     }
-    ~Mult() {}
 };
 
 class Div : public Binary {
 public:
-    Div(Expression* l, Expression* r) : Binary(l, r) {}
-    Expression* diff(std::string var) const override {
-        return new Div(new Sub(new Mult(left->diff(var), right->clone()), new Mult(left->clone(), right->diff(var))),
-            right->clone());
+    Div(std::shared_ptr<Expression> l, std::shared_ptr<Expression> r) : Binary(l, r) {}
+    std::shared_ptr<Expression> diff(std::string var) const override {
+        return std::make_shared<Div>(std::make_shared<Sub>(std::make_shared<Mult>(left->diff(var), right->clone()), std::make_shared<Mult>(left->clone(), right->diff(var))), right->clone());
     }
-    Expression* clone() const override {
-        return new Div(left->clone(), right->clone());
+    std::shared_ptr<Expression> clone() const override {
+        return std::make_shared<Div>(left->clone(), right->clone());
     }
     std::string sign() const override {
         return "/";
     }
-    ~Div() {}
 };
 
 class Val : public Expression {
@@ -104,61 +92,55 @@ private:
     int value;
 public:
     Val(int v) : value(v) {}
-    Expression* diff(std::string var) const override {
-        return new Val(0);
+    std::shared_ptr<Expression> diff(std::string var) const override {
+        return std::make_shared<Val>(0);
     }
-    Expression* clone() const override {
-        return new Val(value);
+    std::shared_ptr<Expression> clone() const override {
+        return std::make_shared<Val>(value);
     }
-
     std::string toString() const override {
         return std::to_string(value);
     }
-
-    ~Val() {}
 };
 
 class Exponent : public Binary {
 public:
-    Exponent(Expression* l, Expression* r) : Binary(l, r) {}
-    Expression* diff(std::string var) const override {
-        // right is a constant
-        Expression* one = new Val(1);
-        return new Mult(
-            new Mult(
+    Exponent(std::shared_ptr<Expression> l, std::shared_ptr<Expression> r) : Binary(l, r) {}
+    std::shared_ptr<Expression> diff(std::string var) const override {
+        // Assume right is a constant
+        auto one = std::make_shared<Val>(1);
+        return std::make_shared<Mult>(
+            std::make_shared<Mult>(
                 right->clone(),
-                new Exponent(left->clone(), new Sub(right->clone(), new Val(1)))
-            ),
+                std::make_shared<Exponent>(left->clone(), std::make_shared<Sub>(right->clone(), one))
+                ),
             left->diff(var)
-        );
+            );
     }
 
-    Expression* clone() const override {
-        return new Exponent(left->clone(), right->clone());
+    std::shared_ptr<Expression> clone() const override {
+        return std::make_shared<Exponent>(left->clone(), right->clone());
     }
     std::string sign() const override {
         return "^";
     }
-    ~Exponent() {}
 };
-
 
 class Var : public Expression {
 private:
     std::string var_name;
 public:
     Var(std::string name) : var_name(name) {}
-    Expression* diff(std::string var) const override {
+    std::shared_ptr<Expression> diff(std::string var) const override {
         if (var_name == var)
-            return new Val(1);
+            return std::make_shared<Val>(1);
         else
-            return new Val(0);
+            return std::make_shared<Val>(0);
     }
-    Expression* clone() const override {
-        return new Var(var_name);
+    std::shared_ptr<Expression> clone() const override {
+        return std::make_shared<Var>(var_name);
     }
     std::string toString() const override {
         return var_name;
     }
-    ~Var() {}
 };
