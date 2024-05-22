@@ -1,3 +1,6 @@
+#include <vector>
+#include <stdexcept>
+
 using namespace std;
 
 class Matrix {

@@ -3,7 +3,7 @@
 
 template <int Number, int Divisor>
 struct IsPrimeRecursion :
-    std::conditional_t<(Number% Divisor != 0), IsPrimeRecursion<Number, Divisor - 1>,
+    std::conditional_t<(Number % Divisor != 0), IsPrimeRecursion<Number, Divisor - 1>,
     std::integral_constant<bool, false>> {};
 
 template <int Number>
