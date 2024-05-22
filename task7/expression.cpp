@@ -5,14 +5,20 @@ class Expression {
 public:
     virtual Expression* diff(std::string var) const = 0;
     virtual Expression* clone() const = 0;
-    virtual void print() const = 0;
-    virtual ~Expression() {}
+    virtual std::string toString() const = 0;
+    virtual ~Expression() = default;
 };
 
 class Binary : public Expression {
 protected:
     Expression* left;
     Expression* right;
+    virtual std::string sign() const = 0;
+
+    std::string toString() const override {
+        return "(" + left->toString() + " " + sign() + " " + right->toString() + ")";
+    }
+
 public:
     Binary(Expression* l, Expression* r) : left(l), right(r) {}
     virtual ~Binary() {
@@ -40,10 +46,8 @@ public:
     Expression* clone() const override {
         return new Add(left->clone(), right->clone());
     }
-    void print() const override {
-        left->print();
-        std::cout << " + ";
-        right->print();
+    std::string sign() const override {
+        return "+";
     }
     ~Add() {}
 };
@@ -57,10 +61,9 @@ public:
     Expression* clone() const override {
         return new Sub(left->clone(), right->clone());
     }
-    void print() const override {
-        left->print();
-        std::cout << " - ";
-        right->print();
+
+    std::string sign() const override {
+        return "-";
     }
     ~Sub() {}
 };
@@ -74,10 +77,8 @@ public:
     Expression* clone() const override {
         return new Mult(left->clone(), right->clone());
     }
-    void print() const override {
-        left->print();
-        std::cout << " * ";
-        right->print();
+    std::string sign() const override {
+        return "*";
     }
     ~Mult() {}
 };
@@ -92,49 +93,55 @@ public:
     Expression* clone() const override {
         return new Div(left->clone(), right->clone());
     }
-    void print() const override {
-        left->print();
-        std::cout << " / ";
-        right->print();
+    std::string sign() const override {
+        return "/";
     }
     ~Div() {}
 };
 
-class Exponent : public Binary {
-public:
-    Exponent(Expression* l, Expression* r) : Binary(l, r) {}
-    Expression* diff(std::string var) const override {
-        Expression* inner_diff = new Mult(right->clone(), new Exponent(left->clone(), right->clone()->diff(var)));
-        Expression* outer_diff = new Mult(new Exponent(left->clone(), right->clone()), left->diff(var));
-        return new Mult(inner_diff, outer_diff);
-    }
-    Expression* clone() const override {
-        return new Exponent(left->clone(), right->clone());
-    }
-    void print() const override {
-        left->print();
-        std::cout << " ^ ";
-        right->print();
-    }
-    ~Exponent() {}
-};
-
 class Val : public Expression {
 private:
-    double value;
+    int value;
 public:
-    Val(double v) : value(v) {}
+    Val(int v) : value(v) {}
     Expression* diff(std::string var) const override {
         return new Val(0);
     }
     Expression* clone() const override {
         return new Val(value);
     }
-    void print() const override {
-        std::cout << value;
+
+    std::string toString() const override {
+        return std::to_string(value);
     }
+
     ~Val() {}
 };
+
+class Exponent : public Binary {
+public:
+    Exponent(Expression* l, Expression* r) : Binary(l, r) {}
+    Expression* diff(std::string var) const override {
+        // right is a constant
+        Expression* one = new Val(1);
+        return new Mult(
+            new Mult(
+                right->clone(),
+                new Exponent(left->clone(), new Sub(right->clone(), new Val(1)))
+            ),
+            left->diff(var)
+        );
+    }
+
+    Expression* clone() const override {
+        return new Exponent(left->clone(), right->clone());
+    }
+    std::string sign() const override {
+        return "^";
+    }
+    ~Exponent() {}
+};
+
 
 class Var : public Expression {
 private:
@@ -150,8 +157,8 @@ public:
     Expression* clone() const override {
         return new Var(var_name);
     }
-    void print() const override {
-        std::cout << var_name;
+    std::string toString() const override {
+        return var_name;
     }
     ~Var() {}
 };
