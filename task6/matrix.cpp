@@ -26,6 +26,20 @@ private:
         }
     }
 
+    class Wrapper {
+    private:
+        double* _row;
+        size_t _size;
+    public:
+        Wrapper(double* row, size_t size) : _row(row), _size(size) {}
+
+        double& operator[](size_t col) {
+            if (col >= _size) throw std::out_of_range("Index out of range");
+            return _row[col];
+        }
+
+    };
+
 public:
 
     Matrix(size_t size) : _size(size) {
@@ -87,7 +101,7 @@ public:
         swap(first._data, second._data);
     }
 
-    explicit operator double() const {
+    operator double() const {
         double sum = 0.0;
         for (size_t i = 0; i < _size; ++i) {
             for (size_t j = 0; j < _size; ++j) {
@@ -175,14 +189,9 @@ public:
     }
 
     // bounds checking
-    double* operator[](size_t index) {
+    Wrapper operator[](size_t index) {
         if (index >= _size) throw std::out_of_range("Index out of range");
-        return _data[index];
-    }
-
-    const double* operator[](size_t index) const {
-        if (index >= _size) throw std::out_of_range("Index out of range");
-        return _data[index];
+        return Wrapper(_data[index], _size);
     }
 
 };
