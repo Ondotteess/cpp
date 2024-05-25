@@ -47,7 +47,7 @@ public:
     std::shared_ptr<Expression> diff(std::string var) const override {
         return std::make_shared<Sub>(left->diff(var), right->diff(var));
     }
-    
+
     std::string sign() const override {
         return "-";
     }
@@ -57,7 +57,7 @@ class Mult : public Binary {
 public:
     Mult(std::shared_ptr<Expression> l, std::shared_ptr<Expression> r) : Binary(l, r) {}
     std::shared_ptr<Expression> diff(std::string var) const override {
-        return std::make_shared<Add>(std::make_shared<Mult>(left->diff(var)), std::make_shared<Mult>(left->clone(), right->diff(var)));
+        return std::make_shared<Add>(std::make_shared<Mult>(left->diff(var)), std::make_shared<Mult>(left, right->diff(var)));
     }
     std::string sign() const override {
         return "*";
